@@ -4,6 +4,7 @@ import shutil
 import importlib
 import pandas as pd
 import matplotlib
+
 matplotlib.use("Agg")
 import matplotlib.pyplot as plt
 from telebot.types import (
@@ -15,10 +16,11 @@ from telebot.types import (
 )
 
 # Импортируем объекты бота, базы и конфигураций
-from ibrat_mock_bot.feature.bot_instance import bot
-from ibrat_mock_bot.database import users_db, save_db  # save_db — функция для сохранения изменений в базе, если используется
-from ibrat_mock_bot.config import ADMIN_IDS
-from ibrat_mock_bot.feature.events_list import EVENT_LIST
+from feature.bot_instance import bot
+from database import users_db, save_db  # save_db — функция для сохранения изменений в базе, если используется
+from config import ADMIN_IDS
+from feature.events_list import EVENT_LIST
+
 
 # ==================================================================
 # Функция отображения главного меню для пользователей
@@ -28,6 +30,7 @@ def show_main_menu(chat_id):
     if chat_id in ADMIN_IDS:
         markup.add(KeyboardButton("Административная панель"))
     bot.send_message(chat_id, "Выберите действие:", reply_markup=markup)
+
 
 # ==================================================================
 # Административная панель
@@ -44,6 +47,7 @@ def admin_panel(message):
     markup.add(KeyboardButton("Рассылка"))
     markup.add(KeyboardButton("Статистика"))
     bot.send_message(message.chat.id, "Административная панель:", reply_markup=markup)
+
 
 # ==================================================================
 # Просмотр базы данных зарегистрированных пользователей
@@ -75,9 +79,11 @@ def view_database(message):
     for msg in messages:
         bot.send_message(message.chat.id, msg, parse_mode="HTML")
 
+
 # ==================================================================
 # Скачивание базы данных в Excel-формате
-@bot.message_handler(func=lambda message: message.text == "Скачать базу данных в $Excel$" and message.chat.id in ADMIN_IDS)
+@bot.message_handler(
+    func=lambda message: message.text == "Скачать базу данных в $Excel$" and message.chat.id in ADMIN_IDS)
 def download_database(message):
     if not users_db:
         bot.send_message(message.chat.id, "База данных пуста.")
@@ -102,9 +108,11 @@ def download_database(message):
         bot.send_document(message.chat.id, f)
     os.remove(file_path)
 
+
 # ==================================================================
 # Просмотр списка зарегистрированных пользователей по мероприятиям
-@bot.message_handler(func=lambda message: message.text == "Посмотреть список зарегестрированных" and message.chat.id in ADMIN_IDS)
+@bot.message_handler(
+    func=lambda message: message.text == "Посмотреть список зарегестрированных" and message.chat.id in ADMIN_IDS)
 def show_registered_events_menu(message):
     markup = InlineKeyboardMarkup()
     for event in EVENT_LIST:
@@ -116,6 +124,7 @@ def show_registered_events_menu(message):
         button = InlineKeyboardButton(btn_text, callback_data=f"admin_view_{event['id']}")
         markup.add(button)
     bot.send_message(message.chat.id, "Выберите мероприятие:", reply_markup=markup)
+
 
 @bot.callback_query_handler(func=lambda call: call.data.startswith("admin_view_"))
 def admin_view_event_registrations(call):
@@ -152,12 +161,14 @@ def admin_view_event_registrations(call):
         bot.send_document(admin_id, f)
     os.remove(file_path)
 
+
 # ==================================================================
 # Функционал рассылки сообщений
 @bot.message_handler(func=lambda message: message.text == "Рассылка" and message.chat.id in ADMIN_IDS)
 def broadcast_message_step1(message):
     bot.send_message(message.chat.id, "Введите текст для рассылки:\n(Для отмены введите 'Отмена')")
     bot.register_next_step_handler(message, broadcast_message)
+
 
 def broadcast_message(message):
     if message.text.strip().lower() == "отмена":
@@ -178,6 +189,7 @@ def broadcast_message(message):
         message.chat.id,
         f"Сообщение успешно отправлено: {successful} пользователей.\nНевозможно отправить: {failed} пользователей."
     )
+
 
 # ==================================================================
 # Функционал статистики и аналитики
@@ -215,11 +227,14 @@ def show_statistics(message):
         bot.send_photo(message.chat.id, f)
     os.remove(graph_path)
 
+
 # ==================================================================
 # Функционал замены файла events_list.py
-@bot.message_handler(func=lambda message: message.text == "Изменить мероприятия (events_list.py)" and message.chat.id in ADMIN_IDS)
+@bot.message_handler(
+    func=lambda message: message.text == "Изменить мероприятия (events_list.py)" and message.chat.id in ADMIN_IDS)
 def request_file(message):
     bot.send_message(message.chat.id, "Отправьте файл с названием `events_list.py` для замены текущего файла.")
+
 
 @bot.message_handler(content_types=["document"])
 def handle_document(message):
@@ -261,10 +276,12 @@ def handle_document(message):
         return
 
     try:
-        importlib.reload(__import__("ibrat_mock_bot.feature.events_list", fromlist=[""]))
+        importlib.reload(__import__("feature.events_list", fromlist=[""]))
         bot.send_message(message.chat.id, "Модуль events_list.py перезагружен.")
     except Exception as e:
-        bot.send_message(message.chat.id, f"Не удалось перезагрузить модуль автоматически: {e}\nПожалуйста, перезапустите бота вручную.")
+        bot.send_message(message.chat.id,
+                         f"Не удалось перезагрузить модуль автоматически: {e}\nПожалуйста, перезапустите бота вручную.")
+
 
 # ==================================================================
 print("Admin module loaded successfully.")

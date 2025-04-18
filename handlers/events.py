@@ -7,11 +7,11 @@ from telebot.types import (
     InlineKeyboardButton,
     ReplyKeyboardRemove
 )
-from ibrat_mock_bot.feature.bot_instance import bot
-from ibrat_mock_bot.database import users_db, save_db  # Импорт функции сохранения БД
-from ibrat_mock_bot.feature.events_list import EVENT_LIST
-from ibrat_mock_bot.feature.REQUIRED_CHANNELS import REQUIRED_CHANNELS
-from ibrat_mock_bot.languages.MESSAGES import MESSAGES
+from feature.bot_instance import bot
+from database import users_db, save_db  # Импорт функции сохранения БД
+from feature.events_list import EVENT_LIST
+from feature.REQUIRED_CHANNELS import REQUIRED_CHANNELS
+from languages.MESSAGES import MESSAGES
 import qrcode
 from io import BytesIO
 
@@ -53,7 +53,8 @@ def save_event_to_user_db(chat_id, event):
     save_db()  # Сохраняем изменения в файле ibrat_users.json
 
 
-@bot.message_handler(func=lambda message: message.text in [MESSAGES["register_button"][lang] for lang in MESSAGES["register_button"]])
+@bot.message_handler(
+    func=lambda message: message.text in [MESSAGES["register_button"][lang] for lang in MESSAGES["register_button"]])
 def show_events(message):
     chat_id = message.chat.id
     lang = get_user_language(chat_id)

@@ -1,8 +1,8 @@
 from telebot import TeleBot, types
-from ibrat_mock_bot.handlers.events import *
-from ibrat_mock_bot.database import save_db, user_data, users_db, DB_FILE
-from ibrat_mock_bot.feature.bot_instance import bot
-from ibrat_mock_bot.config import ADMIN_IDS
+from handlers.events import *
+from database import save_db, user_data, users_db, DB_FILE
+from feature.bot_instance import bot
+from config import ADMIN_IDS
 import json
 
 # Доступные языки
