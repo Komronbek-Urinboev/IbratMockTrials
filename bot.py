@@ -26,3 +26,4 @@ if __name__ == "__main__":
     except Exception as e:
         logging.error(f"Ошибка в работе бота: {e}")
         time.sleep(5)  # Перезапуск через 5 сек
+

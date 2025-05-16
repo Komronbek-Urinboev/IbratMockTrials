@@ -10,3 +10,6 @@ RUN pip install docker
 COPY . /src/
 
 CMD [ "python", "./bot.py" ]
+
+#docker build -t botmaster .
+#docker run -d --name ibrat-masterclass-container botmaster
