@@ -12,7 +12,7 @@ from telebot.types import (
     KeyboardButton,
     InlineKeyboardMarkup,
     InlineKeyboardButton,
-    ReplyKeyboardRemove
+
 )
 
 # Импортируем объекты бота, базы и конфигураций
@@ -48,7 +48,6 @@ def admin_panel(message):
     markup.add(KeyboardButton("Статистика"))
     bot.send_message(message.chat.id, "Административная панель:", reply_markup=markup)
 
-
 # ==================================================================
 # Просмотр базы данных зарегистрированных пользователей
 @bot.message_handler(func=lambda message: message.text == "Просмотр базы данных" and message.chat.id in ADMIN_IDS)
@@ -65,6 +64,7 @@ def view_database(message):
             f"ID: <code>{user_id}</code>\n"
             f"Имя Фамилия: <code>{user_info.get('full_name', 'Не указано')}</code>\n"
             f"Телефон: +{user_info.get('phone', 'Не указан')}\n"
+            f"Instagram: <code>{user_info.get('instagram', 'Не указан')}</code>\n"  # Добавлено поле Instagram
             f"Уровень: <code>{user_info.get('english_level', 'Не указан')}</code>\n"
             f"Возраст: <code>{user_info.get('age', 'Не указан')}</code>\n"
             f"Username: @{username}\n"
@@ -94,6 +94,8 @@ def download_database(message):
     for user_id, user_info in users_db.items():
         record = user_info.copy()
         record["user_id"] = user_id
+        # Если Instagram не был добавлен, то поле просто отсутствует, но его можно добавить по умолчанию:
+        record.setdefault("instagram", "Не указан")
         if "registered_events" in record and isinstance(record["registered_events"], list):
             record["registered_events"] = "\n".join(record["registered_events"])
         data_list.append(record)
@@ -138,6 +140,7 @@ def admin_view_event_registrations(call):
                     record = {
                         "Имя и Фамилия": user_info.get("full_name", "Не указано"),
                         "Телефон": user_info.get("phone", "Не указан"),
+                        "Instagram": user_info.get("instagram", "Не указан"),  # Добавлено поле Instagram
                         "Уровень английского": user_info.get("english_level", "Не указан"),
                         "Возраст": user_info.get("age", "Не указан"),
                         "Telegram ID": user_id,
@@ -160,7 +163,6 @@ def admin_view_event_registrations(call):
     with open(file_path, "rb") as f:
         bot.send_document(admin_id, f)
     os.remove(file_path)
-
 
 # ==================================================================
 # Функционал рассылки сообщений

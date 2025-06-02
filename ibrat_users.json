@@ -36,19 +36,6 @@
             "1: Ташкент + 20.04.2025 + 14:00 + Yoshlar Ijod Saroyi + Ташкент:\nt.me/ibratmocktrialstashkent"
         ]
     },
-    "7393504121": {
-        "lang": "en",
-        "full_name": "Console Log",
-        "phone": "123456789eWq",
-        "english_level": "Pre-Intermediate",
-        "age": 16,
-        "telegram_id": 7393504121,
-        "username": "Komronbek_Urinboev",
-        "first_name": "Komron",
-        "registered_events": [
-            "1: Ташкент + 02/04 + 13:00 + Центр Ibrat + Ташкент:\nt.me/ibratmocktrialstashkent"
-        ]
-    },
     "8017762858": {
         "lang": "en",
         "full_name": "Asadbek Oltinov",
@@ -1016,5 +1003,16 @@
         "registered_events": [
             "2: Самарканд + 20.04.2025 + 14:00 + Yoshlar Markazi + Самарканд: t.me/ibratmocktrailsamarkand"
         ]
+    },
+    "7393504121": {
+        "lang": "en",
+        "full_name": "Console Log",
+        "phone": "998338780539",
+        "english_level": "Upper-Intermediate",
+        "age": 99,
+        "telegram_id": 7393504121,
+        "username": "Komronbek_Urinboev",
+        "first_name": "Komron",
+        "instagram": "Khan_komron"
     }
 }

@@ -6,7 +6,7 @@ EVENT_LIST = [
             "en": "Tashkent",
             "uz": "Toshkent"
         },
-        "date": "20.04.2025",
+        "date": "25.05.2025",
         "time": "14:00",
         "location": {
             "ru": "Yoshlar Ijod Saroyi",
@@ -26,7 +26,7 @@ EVENT_LIST = [
             "en": "Samarkand",
             "uz": "Samarqand"
         },
-        "date": "20.04.2025",
+        "date": "25.05.2025",
         "time": "14:00",
         "location": {
             "ru": "Yoshlar Markazi",
@@ -46,7 +46,7 @@ EVENT_LIST = [
             "en": "Andijan",
             "uz": "Andijon"
         },
-        "date": "20.04.2025",
+        "date": "25.05.2025",
         "time": "14:00",
         "location": {
             "ru": "Yoshlar Markazi",
@@ -66,7 +66,7 @@ EVENT_LIST = [
             "en": "Karakalpakstan",
             "uz": "Qoraqalpog'iston"
         },
-        "date": "20.04.2025",
+        "date": "25.05.2025",
         "time": "14:00",
         "location": {
             "ru": "Jaslar Orayi",

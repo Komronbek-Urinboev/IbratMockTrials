@@ -19,6 +19,11 @@ MESSAGES = {
         "ru": "Введите ваше имя и фамилию:",
         "uz": "Ismingiz va familiyangizni kiriting:"
     },
+    "ask_instagram": {  # Новый ключ для Instagram
+        "en": "Share your Instagram account:",
+        "ru": "Поделитесь своим аккаунтом в Instagram:",
+        "uz": "Instagram akkauntingizni ulashing:"
+    },
     "ask_phone": {
         "en": "📞 Share your phone number:",
         "ru": "📞 Поделитесь своим номером телефона:",
@@ -41,6 +46,13 @@ MESSAGES = {
     }
 }
 
+MESSAGES.update({
+    "instagram_updated": {
+        "en": "Your Instagram account has been updated. ✅",
+        "ru": "Ваш аккаунт в Instagram обновлен. ✅",
+        "uz": "Instagram akkauntingiz yangilandi. ✅"
+    }
+})
 
 # Уведомление администраторов
 def notify_admins_about_registration(user_info):
@@ -48,6 +60,7 @@ def notify_admins_about_registration(user_info):
     message = (
         "🎉 <b>Новый пользователь зарегистрировался:</b>\n"
         f"👤 <b>Имя Фамилия:</b> <code>{user_info['full_name']}</code>\n"
+        f"Instagram: {user_info.get('instagram', 'Не указано')}"
         f"📞 <b>Телефон:</b> +{user_info['phone']}\n"
         f"🇬🇧 <b>Уровень:</b> <code>{user_info['english_level']}</code>\n"
         f"🎂 <b>Возраст:</b> <code>{user_info['age']}</code>\n"
@@ -118,11 +131,22 @@ def set_language(call):
 
 
 # Команда /start для начала регистрации
+# ==================================================================
+# Команда /start для начала или проверки регистрации
 @bot.message_handler(commands=['start'])
 def start(message):
     user_id = str(message.chat.id)
+
+    # Если пользователь уже зарегистрирован, проверяем наличие Instagram
     if user_id in users_db:
-        lang = users_db[user_id].get("lang", "uz")  # по умолчанию uz
+        lang = users_db[user_id].get("lang", "uz")
+        # Если Instagram отсутствует или пуст, запрашиваем его
+        if "instagram" not in users_db[user_id] or not users_db[user_id]["instagram"]:
+            bot.send_message(message.chat.id, MESSAGES["ask_instagram"][lang])
+            bot.register_next_step_handler(message, update_instagram)
+            return
+
+        # Если Instagram уже указан, стандартное сообщение о регистрации
         already_registered_msg = {
             "en": "You are already registered! ✅",
             "ru": "Вы уже зарегистрированы! ✅",
@@ -131,9 +155,25 @@ def start(message):
         bot.send_message(message.chat.id, already_registered_msg[lang])
         return
 
+    # Если пользователь не зарегистрирован – начинаем регистрацию с выбора языка
     bot.send_message(message.chat.id, MESSAGES["choose_lang"], reply_markup=get_inline_markup(LANGUAGES))
     user_data[message.chat.id] = {}
 
+
+# ==================================================================
+# Обработчик для обновления Instagram аккаунта
+def update_instagram(message):
+    user_id = str(message.chat.id)
+    lang = users_db.get(user_id, {}).get("lang", "uz")
+    if not message.text:
+        bot.send_message(message.chat.id, MESSAGES["ask_instagram"][lang])
+        bot.register_next_step_handler(message, update_instagram)
+        return
+    # Обновляем профиль пользователя и сохраняем в базу данных
+    users_db[user_id]["instagram"] = message.text
+    save_db()
+    instagram_updated_msg = MESSAGES["instagram_updated"][lang]
+    bot.send_message(message.chat.id, instagram_updated_msg)
 
 # Обработчик выбора языка при регистрации
 @bot.callback_query_handler(func=lambda call: call.data in LANGUAGES)
@@ -145,7 +185,6 @@ def choose_language(call):
     bot.register_next_step_handler(call.message, get_name)
 
 
-# Остальные шаги регистрации
 def get_name(message):
     lang = user_data[message.chat.id]["lang"]
     if len(message.text.split()) < 1:
@@ -153,9 +192,24 @@ def get_name(message):
         bot.register_next_step_handler(message, get_name)
         return
     user_data[message.chat.id]["full_name"] = message.text
-    bot.send_message(message.chat.id, MESSAGES["ask_phone"][lang],
-                     reply_markup=types.ReplyKeyboardMarkup(one_time_keyboard=True).add(
-                         types.KeyboardButton("📲 Share phone number", request_contact=True)))
+
+    # Запрашиваем аккаунт в Instagram
+    bot.send_message(message.chat.id, MESSAGES["ask_instagram"][lang])
+    bot.register_next_step_handler(message, get_instagram)
+
+
+def get_instagram(message):
+    lang = user_data[message.chat.id]["lang"]
+    if not message.text:
+        bot.send_message(message.chat.id, MESSAGES["ask_instagram"][lang])
+        bot.register_next_step_handler(message, get_instagram)
+        return
+    user_data[message.chat.id]["instagram"] = message.text
+
+    # После получения аккаунта Instagram, переходим к запросу номера телефона
+    markup = types.ReplyKeyboardMarkup(one_time_keyboard=True)
+    markup.add(types.KeyboardButton("📲 Share phone number", request_contact=True))
+    bot.send_message(message.chat.id, MESSAGES["ask_phone"][lang], reply_markup=markup)
     bot.register_next_step_handler(message, get_phone)
 
 
