@@ -6,7 +6,7 @@ EVENT_LIST = [
             "en": "Tashkent",
             "uz": "Toshkent"
         },
-        "date": "25.05.2025",
+        "date": "15.06.2025",
         "time": "14:00",
         "location": {
             "ru": "Yoshlar Ijod Saroyi",
@@ -26,8 +26,8 @@ EVENT_LIST = [
             "en": "Samarkand",
             "uz": "Samarqand"
         },
-        "date": "25.05.2025",
-        "time": "14:00",
+        "date": "15.06.2025",
+        "time": "11:00",
         "location": {
             "ru": "Yoshlar Markazi",
             "en": "Yoshlar Markazi",
@@ -46,7 +46,7 @@ EVENT_LIST = [
             "en": "Andijan",
             "uz": "Andijon"
         },
-        "date": "25.05.2025",
+        "date": "15.06.2025",
         "time": "14:00",
         "location": {
             "ru": "Yoshlar Markazi",
@@ -66,7 +66,7 @@ EVENT_LIST = [
             "en": "Karakalpakstan",
             "uz": "Qoraqalpog'iston"
         },
-        "date": "25.05.2025",
+        "date": "15.06.2025",
         "time": "14:00",
         "location": {
             "ru": "Jaslar Orayi",
@@ -78,8 +78,88 @@ EVENT_LIST = [
             "en": "Karakalpakistan - https://t.me/IbratMocktrialsKarakalpak",
             "uz": "Qoraqalpog'iston - https://t.me/IbratMocktrialsQarakalpak"
         }
+    },
+{
+        "id": "5",
+        "city": {
+            "ru": "Бухара",
+            "en": "Bukhara",
+            "uz": "Buxoro"
+        },
+        "date": "15.06.2025",
+        "time": "14:00",
+        "location": {
+            "ru": "Yoshlar Markazi",
+            "en": "Yoshlar Markazi",
+            "uz": "Yoshlar Markazi"
+        },
+        "group": {
+            "ru": "Бухара - https://t.me/ibratmocktrialsbukhara",
+            "en": "Bukhara - https://t.me/ibratmocktrialsbukhara",
+            "uz": "Buxoro - https://t.me/ibratmocktrialsbukhara"
+        }
+    },
+{
+        "id": "6",
+        "city": {
+            "ru": "Хорезм",
+            "en": "Khorezm",
+            "uz": "Xorazm"
+        },
+        "date": "15.06.2025",
+        "time": "14:00",
+        "location": {
+            "ru": "Yoshlar Markazi",
+            "en": "Yoshlar Markazi",
+            "uz": "Yoshlar Markazi"
+        },
+        "group": {
+            "ru": "Хорезм - https://t.me/ibratmocktrialsxorazm",
+            "en": "Khorezm - https://t.me/ibratmocktrialsxorazm",
+            "uz": "Xorazm - https://t.me/ibratmocktrialsxorazm"
+        }
+    },
+{
+        "id": "7",
+        "city": {
+            "ru": "Жизак",
+            "en": "Jizakh",
+            "uz": "Jizzax"
+        },
+        "date": "15.06.2025",
+        "time": "14:00",
+        "location": {
+            "ru": "Yoshlar Markazi",
+            "en": "Yoshlar Markazi",
+            "uz": "Yoshlar Markazi"
+        },
+        "group": {
+            "ru": "Жизак - https://t.me/ibratmocktrialsjizzakh",
+            "en": "Jizakh - https://t.me/ibratmocktrialsjizzakh",
+            "uz": "Jizzax - https://t.me/ibratmocktrialsjizzakh"
+        }
+    },
+{
+        "id": "8",
+        "city": {
+            "ru": "Фергана",
+            "en": "Fergana",
+            "uz": "Farg'ona"
+        },
+        "date": "15.06.2025",
+        "time": "14:00",
+        "location": {
+            "ru": "Yoshlar Markazi",
+            "en": "Yoshlar Markazi",
+            "uz": "Yoshlar Markazi"
+        },
+        "group": {
+            "ru": "Фергана - https://t.me/ibratmocktrialsfergana",
+            "en": "Fergana - https://t.me/ibratmocktrialsfergana",
+            "uz": "Farg'ona - https://t.me/ibratmocktrialsfergana"
+        }
     }
 ]
 #############
-print("GOOD")
+print("New addition")
 print("Events_list module loaded successfully.")
