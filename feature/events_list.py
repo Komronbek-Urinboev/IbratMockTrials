@@ -114,9 +114,9 @@ EVENT_LIST = [
             "uz": "Yoshlar Markazi"
         },
         "group": {
-            "ru": "Хорезм - https://t.me/ibratmocktrialsxorazm",
-            "en": "Khorezm - https://t.me/ibratmocktrialsxorazm",
-            "uz": "Xorazm - https://t.me/ibratmocktrialsxorazm"
+            "ru": "Хорезм - https://t.me/ibratmocktrialskhorezm",
+            "en": "Khorezm - https://t.me/ibratmocktrialskhorezm",
+            "uz": "Xorazm - https://t.me/ibratmocktrialskhorezm"
         }
     },
 {
