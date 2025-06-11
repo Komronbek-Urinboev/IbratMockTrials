@@ -8,7 +8,6 @@ import handlers.register
 import feature.ban
 import feature.bot_instance
 import feature.events_list
-import feature.event_translations
 import feature.REQUIRED_CHANNELS
 import database
 
