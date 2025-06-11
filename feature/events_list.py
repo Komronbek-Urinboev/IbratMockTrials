@@ -122,8 +122,8 @@ EVENT_LIST = [
 {
         "id": "7",
         "city": {
-            "ru": "Жизак",
-            "en": "Jizakh",
+            "ru": "Джизак",
+            "en": "Jizzakh",
             "uz": "Jizzax"
         },
         "date": "15.06.2025",
