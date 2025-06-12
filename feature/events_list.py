@@ -102,9 +102,9 @@ EVENT_LIST = [
 {
         "id": "6",
         "city": {
-            "ru": "Хорезм",
-            "en": "Khorezm",
-            "uz": "Xorazm"
+            "ru": "Наманган",
+            "en": "Namangan",
+            "uz": "Namangan"
         },
         "date": "15.06.2025",
         "time": "14:00",
@@ -114,9 +114,9 @@ EVENT_LIST = [
             "uz": "Yoshlar Markazi"
         },
         "group": {
-            "ru": "Хорезм - https://t.me/ibratmocktrialskhorezm",
-            "en": "Khorezm - https://t.me/ibratmocktrialskhorezm",
-            "uz": "Xorazm - https://t.me/ibratmocktrialskhorezm"
+            "ru": "Наманган - https://t.me/ibratmocktrialsnamangan",
+            "en": "Namangan - https://t.me/ibratmocktrialsnamangan",
+            "uz": "Namangan - https://t.me/ibratmocktrialsnamangan"
         }
     },
 {
