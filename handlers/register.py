@@ -60,7 +60,7 @@ def notify_admins_about_registration(user_info):
     message = (
         "🎉 <b>Новый пользователь зарегистрировался:</b>\n"
         f"👤 <b>Имя Фамилия:</b> <code>{user_info['full_name']}</code>\n"
-        f"Instagram: {user_info.get('instagram', 'Не указано')}"
+        f"👉Instagram👈: {user_info.get('instagram', 'Не указано')}\n"
         f"📞 <b>Телефон:</b> +{user_info['phone']}\n"
         f"🇬🇧 <b>Уровень:</b> <code>{user_info['english_level']}</code>\n"
         f"🎂 <b>Возраст:</b> <code>{user_info['age']}</code>\n"
