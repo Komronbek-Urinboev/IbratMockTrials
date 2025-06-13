@@ -3,7 +3,7 @@ import time
 from feature.bot_instance import bot
 import config
 import handlers.admin_test
-import handlers.events
+import handlers.events_test
 import handlers.register
 import feature.ban
 import feature.bot_instance

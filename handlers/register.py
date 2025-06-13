@@ -4,6 +4,7 @@ from database import save_db, user_data, users_db, DB_FILE
 from feature.bot_instance import bot
 from config import ADMIN_IDS
 import json
+from feature.antispam import *
 
 # Доступные языки
 LANGUAGES = {
@@ -82,6 +83,8 @@ def get_inline_markup(options):
 
 @bot.message_handler(commands=['language'])
 def change_language(message):
+    if check_spam(message, "language"):
+        return  # Если спам – завершаем выполнение
     markup = types.InlineKeyboardMarkup()
     markup.add(types.InlineKeyboardButton("English", callback_data="lang_en"))
     markup.add(types.InlineKeyboardButton("Русский", callback_data="lang_ru"))
@@ -135,6 +138,8 @@ def set_language(call):
 # Команда /start для начала или проверки регистрации
 @bot.message_handler(commands=['start'])
 def start(message):
+    if check_spam(message, "start"):
+        return  # Если спам – завершаем выполнение
     user_id = str(message.chat.id)
 
     # Если пользователь уже зарегистрирован, проверяем наличие Instagram

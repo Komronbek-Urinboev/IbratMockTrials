@@ -20,6 +20,7 @@ from feature.bot_instance import bot
 from database import users_db, save_db  # save_db — функция для сохранения изменений в базе, если используется
 from config import ADMIN_IDS
 from feature.events_list import EVENT_LIST
+from feature.antispam import *
 
 
 # ==================================================================
@@ -36,6 +37,8 @@ def show_main_menu(chat_id):
 # Административная панель
 @bot.message_handler(commands=["admin_panel"])
 def admin_panel(message):
+    if check_spam(message, "admin_panel"):
+        return  # Если спам – завершаем выполнение
     if message.chat.id not in ADMIN_IDS:
         return  # Только для администраторов
 
@@ -64,7 +67,7 @@ def view_database(message):
         user_text = (
             f"ID: <code>{user_id}</code>\n"
             f"Имя Фамилия: <code>{user_info.get('full_name', 'Не указано')}</code>\n"
-            f"Instagram: {user_info.get('instagram', 'Не указано')}"
+            f"Instagram: {user_info.get('instagram', 'Не указано')}\n"
             f"Телефон: +{user_info.get('phone', 'Не указан')}\n"
             f"Уровень: <code>{user_info.get('english_level', 'Не указан')}</code>\n"
             f"Возраст: <code>{user_info.get('age', 'Не указан')}</code>\n"
