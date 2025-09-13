@@ -1,6 +1,4 @@
 import os
-import json
-import shutil
 import importlib
 import pandas as pd
 import matplotlib
@@ -11,9 +9,10 @@ from telebot.types import (
     ReplyKeyboardMarkup,
     KeyboardButton,
     InlineKeyboardMarkup,
-    InlineKeyboardButton,
-    ReplyKeyboardRemove
+    InlineKeyboardButton
 )
+import re
+import sqlite3
 
 # Импортируем объекты бота, базы и конфигураций
 from feature.bot_instance import bot
@@ -21,6 +20,7 @@ from database import users_db, save_db  # save_db — функция для со
 from config import ADMIN_IDS
 from feature.events_list import EVENT_LIST
 from feature.antispam import *
+from database_ev.events_db import add_event, delete_event, DB_PATH
 
 
 # ==================================================================
@@ -46,7 +46,6 @@ def admin_panel(message):
     markup.add(KeyboardButton("Просмотр базы данных"))
     markup.add(KeyboardButton("Скачать базу данных в $Excel$"))
     markup.add(KeyboardButton("Посмотреть список зарегестрированных"))
-    markup.add(KeyboardButton("Изменить мероприятия (events_list.py)"))
     markup.add(KeyboardButton("Рассылка"))
     markup.add(KeyboardButton("Статистика"))
     bot.send_message(message.chat.id, "Административная панель:", reply_markup=markup)
@@ -287,5 +286,94 @@ def handle_document(message):
                          f"Не удалось перезагрузить модуль автоматически: {e}\nПожалуйста, перезапустите бота вручную.")
 
 
+## ======# ==================================================================
+
+# --- Добавление события ---
+@bot.message_handler(func=lambda m: m.text.startswith("/add_event"))
+def add_event_handler(message):
+    if message.chat.id not in ADMIN_IDS:
+        return
+
+    try:
+        blocks = message.text.replace("/add_event", "").strip().split("\n\n")
+        added_ids = []
+
+        for block in blocks:
+            lines = [line.strip() for line in block.split("\n") if line.strip()]
+            if len(lines) < 5:
+                continue
+
+            has_labels = any(":" in line for line in lines)
+
+            if has_labels:
+                city = [p.strip() for p in lines[0].replace("Город:", "").split("|")]
+                date = lines[1].replace("Дата:", "").strip()
+                time = lines[2].replace("Время:", "").strip()
+                location = [p.strip() for p in lines[3].replace("Локация:", "").split("|")]
+                group = [p.strip() for p in lines[4].replace("Группа:", "").split("|")]
+            else:
+                city = [p.strip() for p in lines[0].split("|")]
+                date = lines[1].strip()
+                time = lines[2].strip()
+                location = [p.strip() for p in lines[3].split("|")]
+                group = [p.strip() for p in lines[4].split("|")]
+
+            if len(city) != 3 or len(location) != 3 or len(group) != 3:
+                continue
+
+            event_id = add_event(city[0], city[1], city[2],
+                                 date, time,
+                                 location[0], location[1], location[2],
+                                 group[0], group[1], group[2])
+            added_ids.append(event_id)
+
+        if added_ids:
+            bot.send_message(message.chat.id, f"✅ Добавлены события с ID: {', '.join(map(str, added_ids))}")
+        else:
+            bot.send_message(message.chat.id, "⚠️ Ни одно событие не добавлено.")
+
+    except Exception as e:
+        bot.send_message(message.chat.id, f"Ошибка: {e}")
+
+
+# --- Удалить одно событие по ID ---
+@bot.message_handler(commands=["delete_event"])
+def delete_event_handler(message):
+    if message.chat.id not in ADMIN_IDS:
+        return
+
+    try:
+        parts = message.text.strip().split()
+        if len(parts) != 2 or not parts[1].isdigit():
+            bot.send_message(message.chat.id, "⚠️ Использование: /delete_event <id>")
+            return
+
+        event_id = int(parts[1])
+        if delete_event(event_id):
+            bot.send_message(message.chat.id, f"🗑 Событие с ID {event_id} удалено.")
+        else:
+            bot.send_message(message.chat.id, f"❌ Событие с ID {event_id} не найдено.")
+
+    except Exception as e:
+        bot.send_message(message.chat.id, f"Ошибка: {e}")
+
+
+# --- Удалить все события ---
+@bot.message_handler(commands=["delete_all_events"])
+def delete_all_events_handler(message):
+    if message.chat.id not in ADMIN_IDS:
+        return
+
+    try:
+        conn = sqlite3.connect(DB_PATH)
+        cur = conn.cursor()
+        cur.execute("DELETE FROM events")
+        conn.commit()
+        conn.close()
+
+        bot.send_message(message.chat.id, "🗑 Все события удалены.")
+
+    except Exception as e:
+        bot.send_message(message.chat.id, f"Ошибка: {e}")
 # ==================================================================
 print("Admin module loaded successfully.")

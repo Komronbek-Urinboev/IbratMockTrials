@@ -7,12 +7,13 @@ from telebot.types import (
 )
 from feature.bot_instance import bot
 from database import users_db, save_db  # Импорт функции сохранения БД
-from feature.events_list import EVENT_LIST
+from database_ev.events_db import get_events # Берём события из SQL
 from feature.REQUIRED_CHANNELS import REQUIRED_CHANNELS
 from languages.MESSAGES import MESSAGES
 import qrcode
 from feature.antispam import *
 from io import BytesIO
+
 
 def get_user_language(chat_id):
     user = users_db.get(str(chat_id))
@@ -20,59 +21,63 @@ def get_user_language(chat_id):
         return user["lang"]
     return "uz"  # Язык по умолчанию
 
+
 def show_main_menu(chat_id):
     lang = get_user_language(chat_id)
     markup = ReplyKeyboardMarkup(resize_keyboard=True)
     markup.add(KeyboardButton(MESSAGES["register_button"][lang]))
     bot.send_message(chat_id, MESSAGES["choose_action"][lang], reply_markup=markup)
 
+
 def get_translated_event_data(event, lang):
-    """Получает переводы для города и места проведения."""
+    """Получает переводы для города и места проведения из SQL-записи."""
     return {
-        "city": event["city"].get(lang, event["city"]["uz"]),
-        "location": event["location"].get(lang, event["location"]["uz"])
+        "city": event["city_" + lang] or event["city_uz"],
+        "location": event["location_" + lang] or event["location_uz"]
     }
 
-# Функция для сохранения информации о регистрации мероприятия в БД
+
 def save_event_to_user_db(chat_id, event):
-    # Формируем строку с данными о мероприятии, используя русский перевод (можно адаптировать под выбранный язык)
+    """Сохраняем информацию о регистрации мероприятия в user_db."""
     event_info = (
-        f"{event['id']}: {event['city']['ru']} + {event['date']} + {event['time']} + "
-        f"{event['location']['ru']} + {event['group']['ru']}"
+        f"{event['id']}: {event['city_ru']} + {event['date']} + {event['time']} + "
+        f"{event['location_ru']} + {event['group_ru']}"
     )
     user = users_db.get(str(chat_id), {})
     if "registered_events" not in user:
         user["registered_events"] = []
     user["registered_events"].append(event_info)
     users_db[str(chat_id)] = user
-    save_db()  # Сохраняем изменения в файле
+    save_db()
 
-# Обработчик для кнопки регистрации (ReplyKeyboard)
-# Здесь проверяем, если пользователь использует текст команды (из кнопки) более двух раз – игнорируем
+
+# Обработчик для кнопки регистрации
 @bot.message_handler(func=lambda message: message.text in [MESSAGES["register_button"][lang] for lang in MESSAGES["register_button"]])
 def show_events(message):
     spam_key = message.text.lower().strip()
     if check_spam(message, spam_key):
-        return  # Игнорируем, если превышен лимит
+        return
 
     chat_id = message.chat.id
     lang = get_user_language(chat_id)
     markup = InlineKeyboardMarkup()
-    for event in EVENT_LIST:
+
+    events = get_events()
+    for event in events:
         translated = get_translated_event_data(event, lang)
         btn_text = f"{translated['city']} | {event['date']} | {event['time']} | {translated['location']}"
-        # Для callback используем ключ по префиксу, чтобы повторные клики по одной категории учитывались
         btn = InlineKeyboardButton(btn_text, callback_data=f"register_{event['id']}")
         markup.add(btn)
+
     markup.add(InlineKeyboardButton(MESSAGES["cancel"][lang], callback_data="cancel"))
     bot.send_message(chat_id, MESSAGES["choose_event"][lang], reply_markup=markup)
 
-# Обработчик выбора мероприятия (inline кнопка)
+
+# Обработчик выбора мероприятия
 @bot.callback_query_handler(func=lambda call: call.data.startswith("register_"))
 def confirm_registration(call):
-    # Вместо полного call.data используем общий ключ "register"
     if check_spam(call, "register"):
-        return  # Игнорируем повторные вызовы
+        return
 
     chat_id = call.message.chat.id
     lang = get_user_language(chat_id)
@@ -89,15 +94,15 @@ def confirm_registration(call):
     markup.add(InlineKeyboardButton(MESSAGES["check_subscription"][lang], callback_data=f"check_sub_{event_id}"))
     bot.send_message(chat_id, MESSAGES["subscribe_channels"][lang], reply_markup=markup)
 
-# Обработчик проверки подписки (inline кнопка)
+
+# Обработчик проверки подписки
 @bot.callback_query_handler(func=lambda call: call.data.startswith("check_sub_"))
 def check_subscription(call):
     if check_spam(call, "check_sub"):
-        return  # Игнорируем повторные нажатия
+        return
 
     chat_id = call.message.chat.id
     lang = get_user_language(chat_id)
-    # Извлекаем event_id из callback_data
     event_id = call.data.split("_")[2].strip()
     message_id = call.message.message_id
 
@@ -110,7 +115,8 @@ def check_subscription(call):
         bot.send_message(chat_id, f"{MESSAGES['subscription_error'][lang]}: {str(e)}")
         return
 
-    event = next((e for e in EVENT_LIST if str(e["id"]).strip() == event_id), None)
+    events = get_events()
+    event = next((e for e in events if str(e["id"]).strip() == event_id), None)
     if event is None:
         bot.send_message(chat_id, MESSAGES["event_not_found"][lang])
         return
@@ -118,12 +124,11 @@ def check_subscription(call):
     user_info = users_db.get(str(chat_id), {})
 
     if user_subscribed:
-        # Функция для получения детальных переводов (включая группу)
         def get_translated_event_data_detail(event, lang):
             return {
-                "city": event["city"].get(lang, event["city"]["uz"]),
-                "location": event["location"].get(lang, event["location"]["uz"]),
-                "group": event["group"].get(lang, event["group"]["uz"])
+                "city": event["city_" + lang] or event["city_uz"],
+                "location": event["location_" + lang] or event["location_uz"],
+                "group": event["group_" + lang] or event["group_uz"]
             }
 
         translated = get_translated_event_data_detail(event, lang)
@@ -137,7 +142,6 @@ def check_subscription(call):
             f"{translated['group']}"
         )
 
-        # Формируем QR-код с данными пользователя и события
         qr_data = (
             f"{MESSAGES['registration_success_event'][lang].splitlines()[0]}\n\n"
             f"{MESSAGES['event_data_label'][lang]}\n\n"
@@ -169,10 +173,7 @@ def check_subscription(call):
 
         bot.send_message(chat_id, event_text, parse_mode="HTML")
         bot.send_photo(chat_id, qr_io, caption=MESSAGES["qr_caption"][lang])
-
-        # После отправки поздравления и QR-кода – сохраняем данные регистрации в БД
         save_event_to_user_db(chat_id, event)
-
     else:
         bot.delete_message(chat_id, message_id)
         markup = InlineKeyboardMarkup()
@@ -181,16 +182,17 @@ def check_subscription(call):
         markup.add(InlineKeyboardButton(MESSAGES["check_subscription"][lang], callback_data=f"check_sub_{event_id}"))
         bot.send_message(chat_id, MESSAGES["subscribe_channels"][lang], reply_markup=markup)
 
+
 # Обработчик команды /events
 @bot.message_handler(commands=["events"])
 def start_command(message):
     if check_spam(message, "events"):
-        return  # Если спам – завершаем выполнение
+        return
     if check_spam(message, "main_menu"):
-        return  # Превышен порог спама – не отправляем меню
+        return
     chat_id = message.chat.id
-    lang = get_user_language(chat_id)
     show_main_menu(chat_id)
+
 
 # Обработчик для inline-кнопки "cancel"
 @bot.callback_query_handler(func=lambda call: call.data == "cancel")
@@ -200,4 +202,5 @@ def cancel_registration(call):
     lang = get_user_language(call.message.chat.id)
     bot.send_message(call.message.chat.id, MESSAGES["registration_cancelled"][lang], reply_markup=ReplyKeyboardRemove())
 
-print("Events_test module loaded successfully.")
+
+print("Events module loaded successfully.")

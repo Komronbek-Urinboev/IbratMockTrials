@@ -153,9 +153,9 @@ def start(message):
 
         # Если Instagram уже указан, стандартное сообщение о регистрации
         already_registered_msg = {
-            "en": "You are already registered! ✅",
-            "ru": "Вы уже зарегистрированы! ✅",
-            "uz": "Siz allaqachon ro'yxatdan o'tgansiz! ✅"
+            "en": "You are already registered! ✅\nEnter the command /events to register for Ibrat Mock Trials",
+            "ru": "Вы уже зарегистрированы! ✅\nВведите команду /events чтобы зарегистрироваться на Ibrat Mock Trials",
+            "uz": "Siz allaqachon ro'yxatdan o'tgansiz! ✅\n/events buyrug‘ini kiriting va Ibrat Mock Trials uchun ro‘yxatdan o‘ting"
         }
         bot.send_message(message.chat.id, already_registered_msg[lang])
         return
@@ -164,6 +164,62 @@ def start(message):
     bot.send_message(message.chat.id, MESSAGES["choose_lang"], reply_markup=get_inline_markup(LANGUAGES))
     user_data[message.chat.id] = {}
 
+from telebot.types import InlineKeyboardMarkup, InlineKeyboardButton
+
+@bot.message_handler(commands=['help'])
+def help_command(message):
+    user_id = str(message.chat.id)
+    lang = "uz"  # язык по умолчанию
+    if user_id in users_db:
+        lang = users_db[user_id].get("lang", "uz")
+
+    help_texts = {
+        "ru": (
+            "<b>Команды бота:</b>\n"
+            "• /start - Обновить бота\n"
+            "• /events - Подать заявку на участие в Mock Trials\n"
+            "• /language - Установить язык\n"
+            "• /help - Помощь\n\n"
+            "<b>Bot:</b> Официальный бот Ibrat Mock Trials — присоединяйтесь, "
+            "регистрируйтесь и следите за юридическими сессиями по всему Узбекистану.\n"
+            "<b>Канал:</b> @IbratMockTrials\n"
+            "<b>Вопросы:</b> @mocktrial_support\n\n"
+            "<b>Организаторы:</b>"
+        ),
+        "en": (
+            "<b>Bot Commands:</b>\n"
+            "• /start - Refresh bot\n"
+            "• /events - Apply for Mock Trials\n"
+            "• /language - Set the language\n"
+            "• /help - Help\n\n"
+            "<b>Bot:</b> Official bot of Ibrat Mock Trials — join, register, and stay updated "
+            "on Uzbekistan’s nationwide legal sessions.\n"
+            "<b>Channel:</b> @IbratMockTrials\n"
+            "<b>For inquiries:</b> @mocktrial_support\n\n"
+            "<b>Organizers:</b>"
+        ),
+        "uz": (
+            "<b>Bot buyruqlari:</b>\n"
+            "• /start - Botni yangilash\n"
+            "• /events - Mock Trials da qatnashish\n"
+            "• /language - Tilni o'zgartirish\n"
+            "• /help - Yordam\n\n"
+            "<b>Bot:</b> Ibrat Mock Trials rasmiy boti — qo‘shiling, ro‘yxatdan o‘ting va "
+            "O‘zbekistondagi huquqiy sessiyalar yangiliklaridan xabardor bo‘ling.\n"
+            "<b>Kanal:</b> @IbratMockTrials\n"
+            "<b>Savollar uchun:</b> @mocktrial_support\n\n"
+            "<b>Tashkilotchilar:</b>"
+        )
+    }
+
+    # --- inline кнопки для организаторов ---
+    markup = InlineKeyboardMarkup()
+    markup.add(InlineKeyboardButton("Oybek Abdullaev", url="https://t.me/ysjshoe"))
+    markup.add(InlineKeyboardButton("Asadbek Oltinov", url="https://t.me/asadbekoltinov"))
+    markup.add(InlineKeyboardButton("Khabibulloh Abdullahonov", url="https://t.me/Khabi0208"))
+    markup.add(InlineKeyboardButton("Bot orqali qanday ro‘yxatdan o‘tiladi?", url="https://telegra.ph/How-to-register-Ibrat-Mock-Trials-09-07"))
+
+    bot.send_message(message.chat.id, help_texts[lang], reply_markup=markup, parse_mode="HTML")
 
 # ==================================================================
 # Обработчик для обновления Instagram аккаунта
