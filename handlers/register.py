@@ -221,6 +221,48 @@ def help_command(message):
 
     bot.send_message(message.chat.id, help_texts[lang], reply_markup=markup, parse_mode="HTML")
 
+@bot.message_handler(commands=['code'])
+def code_command(message):
+    user_id = str(message.chat.id)
+    lang = "uz"  # язык по умолчанию
+    if user_id in users_db:
+        lang = users_db[user_id].get("lang", "uz")
+
+    code_texts = {
+        "ru": (
+            "<b>Программист:</b>\n"
+            "Комронбек Уринбоев\n\n"
+            "<b>О боте:</b>\n"
+            "Бот разработан на языке Python.\n"
+            "Разработчик: @Komronbek_Urinboev"
+        ),
+        "en": (
+            "<b>Developer:</b>\n"
+            "Komronbek Urinboev\n\n"
+            "<b>About bot:</b>\n"
+            "This bot is developed in Python.\n"
+            "Developer: @Komronbek_Urinboev"
+        ),
+        "uz": (
+            "<b>Dasturchi:</b>\n"
+            "Komronbek Urinboyev\n\n"
+            "<b>Bot haqida:</b>\n"
+            "Bot Python dasturlash tilida yaratilgan.\n"
+            "Dasturchi: @Komronbek_Urinboev"
+        )
+    }
+
+    # --- inline кнопка на твой профиль ---
+    markup = InlineKeyboardMarkup()
+    button_texts = {
+        "ru": "👤 Связаться с программистом",
+        "en": "👤 Contact the developer",
+        "uz": "👤 Dasturchi bilan bog‘lanish"
+    }
+    markup.add(InlineKeyboardButton(button_texts[lang], url="https://t.me/Komronbek_Urinboev"))
+
+    bot.send_message(message.chat.id, code_texts[lang], reply_markup=markup, parse_mode="HTML")
+
 # ==================================================================
 # Обработчик для обновления Instagram аккаунта
 def update_instagram(message):
